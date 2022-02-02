@@ -44,7 +44,7 @@ NULL
 #          CTY_NM = stringr::str_extract(DIVISION_NM, " [\\w]+") %>%
 #            stringr::str_remove("\\s")) %>%
 #   mutate(ADMI_CD = substr(DIVISION_ID, 1, 8),
-#          ADMI_NM = stringr::str_extract(DIVISION_NM, "^[\\w]+ [\\w]+ ")) %>%
+#          ADMI_NM = stringr::str_remove(DIVISION_NM, "^[\\w]+ [\\w]+ ")) %>%
 #   filter(!stringr::str_detect(DIVISION_ID, "000000$"))
 #
 # save(legal_divisions, file = "data/legal_divisions.rda")

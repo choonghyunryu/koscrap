@@ -54,16 +54,16 @@
 #' @importFrom glue glue
 #' @export
 #'
-search_naver <- function(query = NULL, chunck = 100, chunk_no = 1,
+search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
                          sort = c("date", "sim"), do_done = FALSE,
                          max_record = NULL, client_id = NULL,
-                         client_secret = NULL) {
+                         client_secret = NULL, verbose = TRUE) {
   if (is.null(query)) {
     stop("검색 키워드인 query를 입력하지 않았습니다.")
   }
 
-  if (chunck < 1 & chunck > 100) {
-    stop("chunck 요청 변수값이 허용 범위(1~100)인지 확인해 보세요.")
+  if (chunk < 1 & chunk > 100) {
+    stop("chunk 요청 변수값이 허용 범위(1~100)인지 확인해 보세요.")
   }
 
   if (chunk_no < 1 & chunk_no > 100) {
@@ -94,7 +94,7 @@ search_naver <- function(query = NULL, chunck = 100, chunk_no = 1,
     enc2utf8() %>%
     URLencode()
 
-  url <- glue::glue("{searchUrl}?query={query}&display={chunck}&start={chunk_no}&sort={sort}")
+  url <- glue::glue("{searchUrl}?query={query}&display={chunk}&start={chunk_no}&sort={sort}")
 
   doc <- url %>%
     httr::GET(
@@ -111,6 +111,15 @@ search_naver <- function(query = NULL, chunck = 100, chunk_no = 1,
     XML::xmlValue() %>%
     as.integer()
 
+  if (verbose) {
+    glue::glue("* 검색된 총 기사 건수는 {total_count}건입니다.\n\n") %>%
+      cat()
+
+    glue::glue("  - ({chunk}/{min(total_count, max_record)})건 호출을 진행합니다.\n\n") %>%
+      cat()
+  }
+
+
   search_list <- doc %>%
     get_list()
 
@@ -126,11 +135,18 @@ search_naver <- function(query = NULL, chunck = 100, chunk_no = 1,
       cnt <- cnt - 1
     }
 
-    add_list <- (seq(cnt) + 1) %>%
+    idx <- (seq(cnt) + 1)
+
+    add_list <- idx[idx <= 1000] %>%
       purrr::map_df({
         function(x) {
+          if (verbose) {
+            glue::glue("  - ({chunk * x}/{total_count})건 호출을 진행합니다.\n\n") %>%
+              cat()
+          }
+
           glue::glue(
-            "{searchUrl}?query={query}&display={chunck}&start={x}&sort={sort}"
+            "{searchUrl}?query={query}&display={chunk}&start={x}&sort={sort}"
           ) %>%
             httr::GET(
               httr::add_headers(
