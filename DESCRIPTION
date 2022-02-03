@@ -6,9 +6,7 @@ Date: 2022-01-31
 Authors@R: c(
   person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
   )
-Description: Collect data using Open API from public data portal and scrap NAVER news article information..
-Depends:
-    R (>= 3.2.0)
+Description: Collect data using Open API from public data portal and scrap NAVER news article information.
 Imports: 
     dplyr,
     httr,
