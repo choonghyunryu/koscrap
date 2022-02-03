@@ -119,7 +119,6 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
       cat()
   }
 
-
   search_list <- doc %>%
     get_list()
 

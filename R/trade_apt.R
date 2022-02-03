@@ -59,7 +59,7 @@
 #' @importFrom glue glue
 #' @export
 trade_apt <- function(auth_key, LAWD_CD = "11110", DEAL_YMD = "202112",
-                      chunk_no = 1, chunk = 100, do_done = FALSE) {
+                      chunk_no = 1, chunk = 400, do_done = FALSE) {
   library(dplyr)
 
   get_list <- function(doc) {

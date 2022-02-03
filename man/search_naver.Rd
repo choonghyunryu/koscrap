@@ -6,17 +6,20 @@
 \usage{
 search_naver(
   query = NULL,
-  chunck = 100,
+  chunk = 100,
   chunk_no = 1,
   sort = c("date", "sim"),
   do_done = FALSE,
   max_record = NULL,
   client_id = NULL,
-  client_secret = NULL
+  client_secret = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
 \item{query}{character. 검색을 원하는 문자열}
+
+\item{chunk}{integer. 검색 결과 출력 건수 지정 (1~100)}
 
 \item{chunk_no}{integer. 검색 시작 위치로 최대 1000까지 가능}
 
@@ -32,8 +35,6 @@ do_done가 FALSE일 경우에는 적용되지 않습니다.}
 \item{client_id}{character. 애플리케이션 등록 시 발급받은 Client ID}
 
 \item{client_secret}{character. 애플리케이션 등록 시 발급받은 Client Secret}
-
-\item{chunk}{integer. 검색 결과 출력 건수 지정 (1~100)}
 }
 \value{
 data.frame

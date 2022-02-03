@@ -9,7 +9,7 @@ trade_apt(
   LAWD_CD = "11110",
   DEAL_YMD = "202112",
   chunk_no = 1,
-  chunk = 100,
+  chunk = 400,
   do_done = FALSE
 )
 }
