@@ -1,2 +1,4 @@
 ^koscrap\.Rproj$
 ^\.Rproj\.user$
+^doc$
+^Meta$
