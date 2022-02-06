@@ -124,7 +124,7 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
 
   records <- NROW(search_list)
 
-  if (!do_done | records >= total_count) {
+  if (!do_done | records >= total_count | records >= max_record) {
     return(search_list)
   } else {
     total_count <- min(total_count, max_record)
