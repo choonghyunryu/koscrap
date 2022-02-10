@@ -10,7 +10,7 @@ search_naver(
   chunk_no = 1,
   sort = c("date", "sim"),
   do_done = FALSE,
-  max_record = NULL,
+  max_record = 1000L,
   client_id = NULL,
   client_secret = NULL,
   verbose = TRUE

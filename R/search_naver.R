@@ -56,7 +56,7 @@
 #'
 search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
                          sort = c("date", "sim"), do_done = FALSE,
-                         max_record = NULL, client_id = NULL,
+                         max_record = 1000L, client_id = NULL,
                          client_secret = NULL, verbose = TRUE) {
   if (is.null(query)) {
     stop("검색 키워드인 query를 입력하지 않았습니다.")
@@ -80,7 +80,7 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
       mutate(publish_date = as.POSIXct(publish_date,
                                        format = "%a, %d %b %Y %H:%M:%S %z")) %>%
       mutate(title_text = stringr::str_remove_all(
-        title, "&\\w+;")) %>%
+        title, "&\\w+;|<[[:punct:]]*b>")) %>%
       mutate(title_text = stringr::str_remove_all(
         title_text, "[[:punct:]]*")) %>%
       mutate(description_text = stringr::str_remove_all(

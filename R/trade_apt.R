@@ -66,8 +66,7 @@ trade_apt <- function(auth_key, LAWD_CD = "11110", DEAL_YMD = "202112",
     doc %>%
       XML::getNodeSet("//item") %>%
       XML::xmlToDataFrame() %>%
-      mutate(거래금액 = stringr::str_remove(거래금액, ",") %>%
-                   as.integer()) %>%
+      mutate(거래금액 = as.integer(stringr::str_remove(거래금액, ","))) %>%
       mutate(DEAL_DATE = glue::glue("{년}-{str_pad(월, width = 2, pad = '0')}-{
                                   str_pad(일, width = 2, pad = '0')}")) %>%
       mutate(층 = as.integer(층)) %>%
