@@ -63,39 +63,35 @@ trade_apt <- function(auth_key, LAWD_CD = "11110", DEAL_YMD = "202112",
   library(dplyr)
 
   get_list <- function(doc) {
-    doc %>%
+    dframe <- doc %>%
       XML::getNodeSet("//item") %>%
-      XML::xmlToDataFrame() %>%
-      mutate(거래금액 = as.integer(stringr::str_remove(거래금액, ","))) %>%
-      mutate(DEAL_DATE = glue::glue("{년}-{str_pad(월, width = 2, pad = '0')}-{
-                                  str_pad(일, width = 2, pad = '0')}")) %>%
-      mutate(층 = as.integer(층)) %>%
-      mutate(건축년도 = as.integer(건축년도)) %>%
-      select(-년, -월, -일) %>%
-      select("LAWD_CD"       = 지역코드,
-             DEAL_DATE,
-             "SERIAL"        = 일련번호,
-             "DEAL_TYPE"     = 거래유형,
-             "BUILD_NM"      = 아파트,
-             "FLOOR"         = 층,
-             "BUILD_YEAR"    = 건축년도,
-             "AREA"          = 전용면적,
-             "AMOUNT"        = 거래금액,
-             "ROAD_CD"       = 도로명코드,
-             "ROAD_NM"       = 도로명,
-             "BUILD_MAJOR"   = 도로명건물본번호코드,
-             "BUILD_MINOR"   = 도로명건물부번호코드,
-             "ROAD_SEQ"      = 도로명일련번호코드,
-             "BASEMENT_FLAG" = 도로명지상지하코드,
-             "LAND_NO"       = 지번,
-             "DONG_NM"       = 법정동,
-             "DONG_MAJOR"    = 법정동본번코드,
-             "DONG_MINOR"    = 법정동부번코드,
-             "EUBMYNDONG_CD" = 법정동읍면동코드,
-             "DONG_LAND_NO"  = 법정동지번코드,
-             "DEALER_ADDR"   = 중개사소재지,
-             "CANCEL_DEAL"   = 해제여부,
-             "CANCEL_DATE"   = 해제사유발생일)
+      XML::xmlToDataFrame()
+
+    if (NROW(dframe) == 0) {
+      return(data.frame())
+    }
+
+    vname <- c("AMOUNT", "DEAL_TYPE", "BUILD_YEAR", "YEAR", "ROAD_NM",
+               "BUILD_MAJOR", "BUILD_MINOR", "ROAD_ADMI", "ROAD_SEQ",
+               "BASEMENT_FLAG", "ROAD_CD", "DONG_NM", "DONG_MAJOR",
+               "DONG_MINOR", "DONG_ADMI", "EUBMYNDONG_CD", "DONG_LAND_NO",
+               "BUILD_NM", "MONTH", "DAY", "SERIAL", "AREA", "DEALER_ADDR",
+               "LAND_NO", "LAWD_CD", "FLOOR", "CANCEL_DATE", "CANCEL_DEAL")
+    names(dframe) <- vname
+
+    dframe %>%
+      select("LAWD_CD", "YEAR", "MONTH", "DAY", "SERIAL", "DEAL_TYPE",
+             "BUILD_NM", "FLOOR", "BUILD_YEAR", "AREA", "AMOUNT", "ROAD_CD",
+             "ROAD_NM", "BUILD_MAJOR", "BUILD_MINOR", "ROAD_SEQ",
+             "BASEMENT_FLAG", "LAND_NO", "DONG_NM", "DONG_MAJOR", "DONG_MINOR",
+             "EUBMYNDONG_CD", "DONG_LAND_NO", "DEALER_ADDR", "CANCEL_DEAL",
+             "CANCEL_DATE") %>%
+      mutate(DEAL_DATE = glue::glue("{YEAR}-{str_pad(MONTH, width = 2, pad = '0')}-{
+                                  str_pad(DAY, width = 2, pad = '0')}")) %>%
+      mutate(AMOUNT = as.integer(stringr::str_remove(AMOUNT, ","))) %>%
+      mutate(FLOOR = as.integer(FLOOR)) %>%
+      mutate(BUILD_YEAR = as.integer(BUILD_YEAR)) %>%
+      select(LAWD_CD, DEAL_DATE, SERIAL:CANCEL_DATE)
   }
 
   api <- "http://openapi.molit.go.kr/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTradeDev"
@@ -103,7 +99,7 @@ trade_apt <- function(auth_key, LAWD_CD = "11110", DEAL_YMD = "202112",
     "{api}?ServiceKey={auth_key}&pageNo={chunk_no}&numOfRows={chunk}&LAWD_CD={LAWD_CD}&DEAL_YMD={DEAL_YMD}"
   )
 
-  doc <- XML::xmlParse(url)
+  doc <- XML::xmlParse(url, encoding = "UTF-8")
 
   resultCode <- doc %>%
     XML::getNodeSet("//resultCode") %>%
