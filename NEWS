@@ -1,0 +1,4 @@
+CHANGES IN R VERSION 0.1.2:
+  NEW FEATURES:
+
+    * Add a new function explore_news() to explore the naver news with shiny app.

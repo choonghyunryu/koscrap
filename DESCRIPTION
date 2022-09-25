@@ -1,26 +1,32 @@
 Package: koscrap
 Type: Package 
 Title: Scrap from Public Data Portal & Naver 
-Version: 0.1.1.9000
-Date: 2022-01-31
+Version: 0.1.2.9000
+Date: 2022-09-25
 Authors@R: c(
   person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
   )
 Description: Collect data using Open API from public data portal and scrap NAVER news article information.
 Imports: 
+    colourpicker,
     dplyr,
+    glue,
+    htmltools,
     httr,
-    XML,
+    purrr,  
+    reactable,
+    shiny,
     stringr,
-    purrr,
-    glue
+    tidytext,
+    wordcloud2,
+    XML
 Author: Choonghyun Ryu [aut, cre]
 Maintainer: Choonghyun Ryu <choonghyun.ryu@gmail.com>
 License: GPL-2 | file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests: 
     rmarkdown,
     knitr
