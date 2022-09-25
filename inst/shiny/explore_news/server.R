@@ -39,7 +39,7 @@ function(input, output, session) {
   )
 
   output$news_list <- renderReactable({
-    newsList$list <-scraped_news() %>%
+    newsList$list <- scraped_news() %>%
       mutate(title = title_text) %>%
       mutate(description = description_text) %>%
       mutate(publish_date = stringr::str_remove_all(publish_date,
