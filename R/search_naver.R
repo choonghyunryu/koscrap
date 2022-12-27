@@ -52,6 +52,7 @@
 #' @importFrom httr GET add_headers
 #' @importFrom purrr map_df
 #' @importFrom glue glue
+#' @importFrom tibble as_tibble
 #' @export
 #'
 search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
@@ -163,6 +164,7 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
       bind_rows(
         add_list
       ) %>%
+      tibble::as_tibble() %>%
       return()
   }
 }
