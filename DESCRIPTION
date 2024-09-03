@@ -1,8 +1,8 @@
 Package: koscrap
 Type: Package 
 Title: Scrap from Public Data Portal & Naver 
-Version: 0.1.3.9001
-Date: 2022-12-27
+Version: 0.2.0.9000
+Date: 2024-09-0
 Authors@R: c(
   person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
   )

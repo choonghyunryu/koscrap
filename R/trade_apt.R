@@ -94,7 +94,7 @@ trade_apt <- function(auth_key, LAWD_CD = "11110", DEAL_YMD = "202112",
       select(LAWD_CD, DEAL_DATE, SERIAL:CANCEL_DATE)
   }
 
-  api <- "http://openapi.molit.go.kr/OpenAPI_ToolInstallPackage/service/rest/RTMSOBJSvc/getRTMSDataSvcAptTradeDev"
+  api <- "http://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev"
   url <- glue::glue(
     "{api}?ServiceKey={auth_key}&pageNo={chunk_no}&numOfRows={chunk}&LAWD_CD={LAWD_CD}&DEAL_YMD={DEAL_YMD}"
   )
