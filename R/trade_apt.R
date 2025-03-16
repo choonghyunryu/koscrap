@@ -47,8 +47,9 @@
 #' # Your authorized API keys
 #' auth_key <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 #'
-#' result <- trade_apt(auth_key, LAWD_CD = "11680", DEAL_YMD = "202104")
-#' result <- trade_apt(auth_key, LAWD_CD = "11680", DEAL_YMD = "202104", do_done = TRUE)
+#' result <- trade_apt(LAWD_CD = "11680", DEAL_YMD = "202104", auth_key = auth_key)
+#' result <- trade_apt(LAWD_CD = "11680", DEAL_YMD = "202104", do_done = TRUE,
+#'                     auth_key = auth_key)
 #'
 #' }
 #'
@@ -58,8 +59,9 @@
 #' @importFrom purrr map_df
 #' @importFrom glue glue
 #' @export
-trade_apt <- function(auth_key, LAWD_CD = "11110", DEAL_YMD = "202112",
-                      chunk_no = 1, chunk = 400, do_done = FALSE) {
+trade_apt <- function(LAWD_CD = "11110", DEAL_YMD = "202112",
+                      chunk_no = 1, chunk = 400, do_done = FALSE,
+                      auth_key = Sys.getenv("PUBGOV_API_KEY")) {
   library(dplyr)
 
   get_list <- function(doc) {
@@ -71,27 +73,20 @@ trade_apt <- function(auth_key, LAWD_CD = "11110", DEAL_YMD = "202112",
       return(data.frame())
     }
 
-    vname <- c("AMOUNT", "DEAL_TYPE", "BUILD_YEAR", "YEAR", "ROAD_NM",
-               "BUILD_MAJOR", "BUILD_MINOR", "ROAD_ADMI", "ROAD_SEQ",
-               "BASEMENT_FLAG", "ROAD_CD", "DONG_NM", "DONG_MAJOR",
-               "DONG_MINOR", "DONG_ADMI", "EUBMYNDONG_CD", "DONG_LAND_NO",
-               "BUILD_NM", "MONTH", "DAY", "SERIAL", "AREA", "DEALER_ADDR",
-               "LAND_NO", "LAWD_CD", "FLOOR", "CANCEL_DATE", "CANCEL_DEAL")
-    names(dframe) <- vname
+    # vname <- c("AMOUNT", "DEAL_TYPE", "BUILD_YEAR", "YEAR", "ROAD_NM",
+    #            "BUILD_MAJOR", "BUILD_MINOR", "ROAD_ADMI", "ROAD_SEQ",
+    #            "BASEMENT_FLAG", "ROAD_CD", "DONG_NM", "DONG_MAJOR",
+    #            "DONG_MINOR", "DONG_ADMI", "EUBMYNDONG_CD", "DONG_LAND_NO",
+    #            "BUILD_NM", "MONTH", "DAY", "SERIAL", "AREA", "DEALER_ADDR",
+    #            "LAND_NO", "LAWD_CD", "FLOOR", "CANCEL_DATE", "CANCEL_DEAL")
+    names(dframe) <- names(dframe) |> toupper()
 
     dframe %>%
-      select("LAWD_CD", "YEAR", "MONTH", "DAY", "SERIAL", "DEAL_TYPE",
-             "BUILD_NM", "FLOOR", "BUILD_YEAR", "AREA", "AMOUNT", "ROAD_CD",
-             "ROAD_NM", "BUILD_MAJOR", "BUILD_MINOR", "ROAD_SEQ",
-             "BASEMENT_FLAG", "LAND_NO", "DONG_NM", "DONG_MAJOR", "DONG_MINOR",
-             "EUBMYNDONG_CD", "DONG_LAND_NO", "DEALER_ADDR", "CANCEL_DEAL",
-             "CANCEL_DATE") %>%
-      mutate(DEAL_DATE = glue::glue("{YEAR}-{str_pad(MONTH, width = 2, pad = '0')}-{
-                                  str_pad(DAY, width = 2, pad = '0')}")) %>%
-      mutate(AMOUNT = as.integer(stringr::str_remove(AMOUNT, ","))) %>%
+      mutate(DEALDATE = glue::glue("{DEALYEAR}-{str_pad(DEALMONTH, width = 2, pad = '0')}-{
+                                  str_pad(DEALDAY, width = 2, pad = '0')}")) %>%
+      mutate(DEALAMOUNT = as.integer(stringr::str_remove_all(DEALAMOUNT, ","))) %>%
       mutate(FLOOR = as.integer(FLOOR)) %>%
-      mutate(BUILD_YEAR = as.integer(BUILD_YEAR)) %>%
-      select(LAWD_CD, DEAL_DATE, SERIAL:CANCEL_DATE)
+      mutate(BUILDYEAR = as.integer(BUILDYEAR))
   }
 
   api <- "http://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev"
@@ -105,7 +100,7 @@ trade_apt <- function(auth_key, LAWD_CD = "11110", DEAL_YMD = "202112",
     XML::getNodeSet("//resultCode") %>%
     XML::xmlValue()
 
-  if (resultCode != "00") {
+  if (resultCode != "000") {
     result_msg <- doc %>%
       XML::getNodeSet("//resultMsg") %>%
       XML::xmlValue()
@@ -150,6 +145,7 @@ trade_apt <- function(auth_key, LAWD_CD = "11110", DEAL_YMD = "202112",
       return()
   }
 }
+
 
 
 

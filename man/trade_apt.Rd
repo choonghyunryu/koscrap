@@ -5,17 +5,15 @@
 \title{아파트 실거래 데이터 가져오기}
 \usage{
 trade_apt(
-  auth_key,
   LAWD_CD = "11110",
   DEAL_YMD = "202112",
   chunk_no = 1,
   chunk = 400,
-  do_done = FALSE
+  do_done = FALSE,
+  auth_key = Sys.getenv("PUBGOV_API_KEY")
 )
 }
 \arguments{
-\item{auth_key}{character. 공공데이터포털에서 발급받은 API 인증키}
-
 \item{LAWD_CD}{character. 지역코드. 각 지역별 코드 행정표준코드관리시스템
 (www.code.go.kr)의 법정동코드 10자리 중 앞 5자리}
 
@@ -27,6 +25,8 @@ trade_apt(
 
 \item{do_done}{logical. 한번의 호출로 모든 조회 결과를 가져오지 못할 경우,
 추가로 호출해서 모든 결과를 가져올지의 여부}
+
+\item{auth_key}{character. 공공데이터포털에서 발급받은 API 인증키}
 }
 \value{
 data.frame
@@ -69,8 +69,9 @@ data.frame
 # Your authorized API keys
 auth_key <- "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
 
-result <- trade_apt(auth_key, LAWD_CD = "11680", DEAL_YMD = "202104")
-result <- trade_apt(auth_key, LAWD_CD = "11680", DEAL_YMD = "202104", do_done = TRUE)
+result <- trade_apt(LAWD_CD = "11680", DEAL_YMD = "202104", auth_key = auth_key)
+result <- trade_apt(LAWD_CD = "11680", DEAL_YMD = "202104", do_done = TRUE,
+                    auth_key = auth_key)
 
 }
 

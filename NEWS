@@ -1,6 +1,13 @@
+CHANGES IN R VERSION 0.3.0:
+  MINOR CHANGES:
+    * API auth key 핸들링. (#3)
+
+
+
 CHANGES IN R VERSION 0.2.0:
   MINOR CHANGES:
     * Change API URL in trade_apt(). (#2)
+
 
 
 CHANGES IN R VERSION 0.1.3:
