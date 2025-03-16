@@ -1,6 +1,9 @@
 CHANGES IN R VERSION 0.3.0:
-  MINOR CHANGES:
-    * API auth key 핸들링. (#3)
+  MAJOR CHANGES:
+    * API auth key 핸들링 함수 추가. (#3)
+        - get_api_key()
+        - set_api_key()
+        - regist_api_key()
 
 
 
