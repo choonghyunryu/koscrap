@@ -150,7 +150,7 @@ regist_api_key <- function(type = c("pubgov", "naver"), api_key = NULL,
       charToRaw() |>
       base64enc::base64encode()
 
-    set_api_key(type, client_id, client_secret)
+    set_api_key(type, client_id = client_id, client_secret = client_secret)
   }
 
   if (!file.exists(key_file)) {
