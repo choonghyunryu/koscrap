@@ -54,7 +54,7 @@ if (getOption("api.key.file")) {
 create_wordcloud <- function(data, remove_n = 5, min_freq = 5, background = "white") {
   data %>%
     filter(nchar(description_text) > 0) %>%
-    unnest_tokens(noun, description_text, bitTA::morpho_mecab, type = "noun") %>%
+    unnest_tokens(noun, description_text, bitNLP::morpho_mecab, type = "noun") %>%
     group_by(noun) %>%
     count() %>%
     arrange(desc(n)) %>%
