@@ -76,16 +76,16 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
   sort <- match.arg(sort)
 
   get_list <- function(doc) {
-    doc %>%
-      XML::getNodeSet("//item") %>%
-      XML::xmlToDataFrame() %>%
-      rename("publish_date" = pubDate) %>%
+    doc |>
+      XML::getNodeSet("//item") |>
+      XML::xmlToDataFrame() |>
+      rename("publish_date" = pubDate) |>
       mutate(publish_date = as.POSIXct(publish_date,
-                                       format = "%a, %d %b %Y %H:%M:%S %z")) %>%
+                                       format = "%a, %d %b %Y %H:%M:%S %z")) |>
       mutate(title_text = stringr::str_remove_all(
-        title, "&\\w+;|<[[:punct:]]*b>")) %>%
+        title, "&\\w+;|<[[:punct:]]*b>")) |>
       mutate(title_text = stringr::str_remove_all(
-        title_text, "[[:punct:]]*")) %>%
+        title_text, "[[:punct:]]*")) |>
       mutate(description_text = stringr::str_remove_all(
         description,
         "&\\w+;|<[[:punct:]]*b>|[“”]"))
@@ -93,36 +93,36 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
 
   searchUrl <- "https://openapi.naver.com/v1/search/news.xml"
 
-  query <- query %>%
-    enc2utf8() %>%
+  query <- query |>
+    enc2utf8() |>
     URLencode()
 
   url <- glue::glue("{searchUrl}?query={query}&display={chunk}&start={chunk_no}&sort={sort}")
 
-  doc <- url %>%
+  doc <- url |>
     httr::GET(
       httr::add_headers(
         "X-Naver-Client-Id"     = client_id,
         "X-Naver-Client-Secret" = client_secret
       )
-    ) %>%
-    toString() %>%
+    ) |>
+    toString() |>
     XML::xmlParse()
 
-  total_count <- doc %>%
-    XML::getNodeSet("//total") %>%
-    XML::xmlValue() %>%
+  total_count <- doc |>
+    XML::getNodeSet("//total") |>
+    XML::xmlValue() |>
     as.integer()
 
   if (verbose) {
-    glue::glue("* 검색된 총 기사 건수는 {total_count}건입니다.\n\n") %>%
+    glue::glue("* 검색된 총 기사 건수는 {total_count}건입니다.\n\n") |>
       cat()
 
-    glue::glue("  - ({chunk}/{min(total_count, max_record)})건 호출을 진행합니다.\n\n") %>%
+    glue::glue("  - ({chunk}/{min(total_count, max_record)})건 호출을 진행합니다.\n\n") |>
       cat()
   }
 
-  search_list <- doc %>%
+  search_list <- doc |>
     get_list()
 
   records <- NROW(search_list)
@@ -139,34 +139,33 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
 
     idx <- (seq(cnt) + 1)
 
-    add_list <- idx[idx <= 1000] %>%
+    add_list <- idx[idx <= 1000] |>
       purrr::map_df({
         function(x) {
           if (verbose) {
-            glue::glue("  - ({chunk * x}/{total_count})건 호출을 진행합니다.\n\n") %>%
+            glue::glue("  - ({chunk * x}/{total_count})건 호출을 진행합니다.\n\n") |>
               cat()
           }
 
           glue::glue(
-            "{searchUrl}?query={query}&display={chunk}&start={x}&sort={sort}"
-          ) %>%
+            "{searchUrl}?query={query}&display={chunk}&start={(x - 1) * chunk + chunk_no}&sort={sort}"
+          ) |>
             httr::GET(
               httr::add_headers(
                 "X-Naver-Client-Id"     = client_id,
                 "X-Naver-Client-Secret" = client_secret
               )
-            ) %>%
-            toString() %>%
-            XML::xmlParse() %>%
+            ) |>
+            toString() |>
+            XML::xmlParse() |>
             get_list()
         }
       })
 
-    search_list %>%
+    search_list |>
       bind_rows(
         add_list
-      ) %>%
-      tibble::as_tibble() %>%
-      return()
+      ) |>
+      tibble::as_tibble()
   }
 }
