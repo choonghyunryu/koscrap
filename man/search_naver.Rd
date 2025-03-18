@@ -11,8 +11,8 @@ search_naver(
   sort = c("date", "sim"),
   do_done = FALSE,
   max_record = 1000L,
-  client_id = NULL,
-  client_secret = NULL,
+  client_id = Sys.getenv("NAVER_CLIENT_ID"),
+  client_secret = Sys.getenv("NAVER_CLIENT_SECRET"),
   verbose = TRUE
 )
 }

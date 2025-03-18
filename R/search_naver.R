@@ -57,8 +57,10 @@
 #'
 search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
                          sort = c("date", "sim"), do_done = FALSE,
-                         max_record = 1000L, client_id = NULL,
-                         client_secret = NULL, verbose = TRUE) {
+                         max_record = 1000L,
+                         client_id = Sys.getenv("NAVER_CLIENT_ID"),
+                         client_secret = Sys.getenv("NAVER_CLIENT_SECRET"),
+                         verbose = TRUE) {
   if (is.null(query)) {
     stop("검색 키워드인 query를 입력하지 않았습니다.")
   }
