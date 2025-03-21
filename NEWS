@@ -1,6 +1,12 @@
+CHANGES IN R VERSION 0.4.0:
+  BUG FIXES:
+    * 네이버 통합 검색어 트렌드 검색 함수 get_naver_trend() 추가. (#4)
+
+
+
 CHANGES IN R VERSION 0.3.1:
   BUG FIXES:
-    * 네이버 뉴스 검색 함수 search_naver() fetch 오류. (#5)
+    * 네이버 뉴스 검색 함수 search_naver() fetch 오류 수정. (#5)
 
 
 

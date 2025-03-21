@@ -169,3 +169,168 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
       tibble::as_tibble()
   }
 }
+
+
+#' 네이버 통합 검색어 트렌드 검색
+#'
+#' @description 네이버 통합 검색어 트렌드 검색를 출력해주는 REST API를 호출하여, 통합 검색어 트렌드를 검색합니다.
+#'
+#' @details 네이버에서 발급받은 Client ID, Client Secret는 개인이 발급받은 키를 사용하며,
+#' 유출되어서는 안됩니다.
+#'
+#' @param keywords character. 주제어에 해당하는 검색어. 최대 20개의 검색어를 설정할 수 있음.
+#' @param titles character. 주제어. 검색어 묶음을 대표하는 이름.
+#' @param start_date character. 조회 기간 시작 날짜(yyyy-mm-dd 형식). 2016년 1월 1일부터 조회할 수 있음.
+#' @param end_date character. 조회 기간 종료 날짜(yyyy-mm-dd 형식).
+#' @param time_unit character. 구간 단위. "month"(월), "date"(일), "week"(주) 중 하나.
+#' @param device character. 범위. 검색 환경에 따른 조건. "all"(전체), "pc"(PC), "mo"(모바일) 중 하나.
+#' @param gender character. 성별. 검색 사용자의 성별에 따른 조건. "all"(전체), "m"(남성), "f"(여성) 중 하나.
+#' @param ages character. 연령대. 검색 사용자의 연령대에 따른 조건. "all"(전체), "0∼12", "13∼18", "19∼24",
+#' "25∼29", "30∼34", "35∼39", "40∼44", "45∼49", "50∼54", "55∼59", "60~" 중 선택. 복수 선택 가능.
+#' @param client_id character. 애플리케이션 등록 시 발급받은 Client ID
+#' @param client_secret character. 애플리케이션 등록 시 발급받은 Client Secret
+#'
+#' @return tibble
+#' 변수 목록은 다음과 같음.:
+#' \itemize{
+#' \item title : character. 검색어의 타이틀(주제어)
+#' \item keywords : character. 주제어에 해당하는 검색어
+#' \item period : character. 구간별 시작 날짜(yyyy-mm-dd 형식)
+#' \item ratio : numeric. 구간별 검색량의 상대적 비율. 구간별 결과에서 가장 큰 값을 100으로 설정한 상댓값.
+#' }
+#'
+#' @examples
+#' \donttest{
+#' # Your authorized API keys
+#' client_id <- "XXXXXXXXXXXXXXXXXXXXXXX"
+#' client_secret <- "XXXXXXXXX"
+#'
+#' get_naver_trend(keywords = c("AI,인공지능", "ChatGPT,챗GPT"),
+#'   titles = c("AI", "ChatGPT"),
+#'   start_date = "2024-01-01",
+#'   end_date = "2025-03-15",
+#'   time_unit = "month",
+#'   device = "pc",
+#'   ages = c("13∼18", "19∼24"),
+#'   gender = "all",
+#'   client_id = client_id,
+#'   client_secret = client_secret
+#'   )
+#'
+#' }
+#'
+#' @importFrom purrr map map_df
+#' @importFrom httr POST add_headers content
+#' @importFrom jsonlite fromJSON toJSON
+#' @importFrom tibble as_tibble
+#' @export
+#'
+get_naver_trend <- function(keywords = NULL, titles = NULL,
+                            start_date = NULL, end_date = NULL,
+                            time_unit = c("month", "date", "week"),
+                            device = c("all", "pc", "mo"),
+                            ages = c("all", "0∼12", "13∼18", "19∼24", "25∼29",
+                                     "30∼34", "35∼39", "40∼44", "45∼49", "50∼54",
+                                     "55∼59", "60~"),
+                            gender = c("all", "m", "f"),
+                            client_id = Sys.getenv("NAVER_CLIENT_ID"),
+                            client_secret = Sys.getenv("NAVER_CLIENT_SECRET")) {
+  # get arguments
+  time_unit <- match.arg(time_unit)
+  device <- match.arg(device)
+  gender <- match.arg(gender)
+
+  ages <- which(c("0∼12", "13∼18", "19∼24", "25∼29",
+  "30∼34", "35∼39", "40∼44", "45∼49", "50∼54",
+  "55∼59", "60~") %in% ages) |>
+    as.character()
+
+  if (is.null(keywords)) {
+    stop("검색 키워드인 keywords를 입력하지 않았습니다.")
+  }
+
+  if (is.null(client_id) | is.null(client_secret)) {
+    stop("네이버 API 인증 정보인 client_id와 client_secret를 입력하지 않았습니다.")
+  }
+
+  if (is.null(start_date) | is.null(end_date)) {
+    stop("검색 기간인 start_date와 end_date를 입력하지 않았습니다.")
+  }
+
+  if (start_date > end_date) {
+    stop("검색 기간의 시작 날짜가 종료 날짜보다 늦습니다.")
+  }
+
+  if (start_date < "2016-01-01") {
+    stop("검색 기간의 시작 날짜가 2016년 1월 1일 이전입니다. 2016년 1월 1일부터 조회할 수 있습니다.")
+  }
+
+  # 네이버 API URL
+  url <- "https://openapi.naver.com/v1/datalab/search"
+
+  # 검색어 그룹 설정 (키워드 리스트를 자동 변환)
+  keyword_groups <- purrr::map(seq(keywords), function(x) {
+    if (is.null(titles)) {
+      gname <- keywords[x]
+    } else {
+      gname <- titles[x]
+    }
+
+    list(groupName = gname, keywords = unlist(strsplit(keywords[x], ",")))
+  })
+
+  # 요청할 데이터 설정
+  body <- list(
+    startDate = start_date,  # 시작 날짜 (YYYY-MM-DD)
+    endDate = end_date,      # 종료 날짜
+    timeUnit = time_unit,    # "date", "week", "month" 선택 가능
+    keywordGroups = keyword_groups,
+    device = device,         # "pc", "mobile", "all" 가능
+    ages = ages,             # 연령대 (NULL = 전체 연령)
+    gender = gender         # "m" (남성), "f" (여성), "all" 가능
+  )
+
+  if (gender == "all") {
+    body[["gender"]] <- NULL
+  }
+
+  if (any(ages %in% "all")) {
+    body[["ages"]] <- NULL
+  }
+
+  if (device == "all") {
+    body[["device"]] <- NULL
+  }
+
+  # API 요청
+  response <- httr::POST(
+    url,
+    httr::add_headers(
+      "X-Naver-Client-Id" = client_id,
+      "X-Naver-Client-Secret" = client_secret,
+      "Content-Type" = "application/json"
+    ),
+    body = jsonlite::toJSON(body, auto_unbox = TRUE),
+    encode = "json"
+  )
+
+  # 응답 데이터 확인
+  data <- httr::content(response, "text", encoding = "UTF-8")
+  parsed_data <- jsonlite::fromJSON(data)
+
+  if (response$status_code != "200") {
+    stop(parsed_data$errorMessage)
+  }
+
+  # 데이터프레임 변환
+  purrr::map_df(seq(NROW(parsed_data$results)), function(x) {
+    title <- parsed_data$results$title[[x]]
+    result <- data.frame(keywords = parsed_data$results$keywords[[x]] |> paste(collapse = ", "))
+    cbind(title, result, as.data.frame(parsed_data$results$data[[x]]))
+  }) |>
+    tibble::as_tibble()
+}
+
+
+
+
