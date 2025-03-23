@@ -276,7 +276,11 @@ get_naver_trend <- function(keywords = NULL, titles = NULL,
       gname <- titles[x]
     }
 
-    list(groupName = gname, keywords = unlist(strsplit(keywords[x], ",")))
+    if (length(keywords) > 1) {
+      list(groupName = gname, keywords = unlist(strsplit(keywords[x], ",")))
+    } else {
+      list(groupName = gname, keywords = strsplit(keywords[x], ","))
+    }
   })
 
   # 요청할 데이터 설정
@@ -318,7 +322,12 @@ get_naver_trend <- function(keywords = NULL, titles = NULL,
   data <- httr::content(response, "text", encoding = "UTF-8")
   parsed_data <- jsonlite::fromJSON(data)
 
-  if (response$status_code != "200") {
+  body_error <- "errMsg" %in% names(parsed_data)
+
+  if (response$status_code != "200" | body_error) {
+    if (body_error) {
+      stop(parsed_data$errMsg)
+    }
     stop(parsed_data$errorMessage)
   }
 
