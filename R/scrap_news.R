@@ -18,13 +18,16 @@
 #' }
 #'
 #' @import rvest
+#' @importFrom stringr str_detect
 #' @export
 #'
 scrap_news <- function(url = NULL, file_name = NULL,
                        verbose = FALSE) {
-  type <- match.arg(type)
+  if (is.null(url)) {
+    stop("뉴스 게시 주소 url을 입력하지 않았습니다.")
+  }
 
-  is_naver <- str_detect(url, "n.news.naver.com")
+  is_naver <- stringr::str_detect(url, "n.news.naver.com")
 
   if (is_naver) {
     target_tag <- "article"
