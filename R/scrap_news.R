@@ -39,8 +39,8 @@ scrap_news <- function(url = NULL, file_name = NULL,
   webpage <- read_html(url)
 
   # 특정 태그 선택 (예: <p> 태그의 내용 가져오기)
-  content <- webpage %>%
-    html_nodes(target_tag) %>%
+  content <- webpage |>
+    html_nodes(target_tag) |>
     html_text()
 
   # 파일로 저장 (선택 사항)

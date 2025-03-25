@@ -1,5 +1,11 @@
+CHANGES IN R VERSION 0.5.0:
+  NEW FEATURES:
+    * 뉴스 원문 URL의 기사 내용 추출하는 함수 scrap_news() 추가. (#6)
+
+
+
 CHANGES IN R VERSION 0.4.0:
-  BUG FIXES:
+  NEW FEATURES:
     * 네이버 통합 검색어 트렌드 검색 함수 get_naver_trend() 추가. (#4)
 
 
@@ -11,7 +17,7 @@ CHANGES IN R VERSION 0.3.1:
 
 
 CHANGES IN R VERSION 0.3.0:
-  MAJOR CHANGES:
+  NEW FEATURES:
     * API auth key 핸들링 함수 추가. (#3)
         - get_api_key()
         - set_api_key()
