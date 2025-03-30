@@ -1,11 +1,12 @@
-#' 네이버 뉴스 검색
+#' 네이버 검색
 #'
-#' @description 네이버 뉴스 검색 결과를 출력해주는 REST API를 호출하여, 뉴스 정보를 검색합니다.
+#' @description 네이버 뉴스/블로그/카페 게시글 검색 결과를 출력해주는 REST API를 호출하여, 뉴스/블로그/카페 게시글 정보를 검색합니다.
 #'
 #' @details 네이버에서 발급받은 Client ID, Client Secret는 개인이 발급받은 키를 사용하며,
 #' 유출되어서는 안됩니다.
 #'
 #' @param query character. 검색을 원하는 문자열
+#' @param type character. 검색의 종류. "news", "blog", "cafearticle"에서 선택.
 #' @param chunk_no integer. 검색 시작 위치로 최대 1000까지 가능
 #' @param chunk integer. 검색 결과 출력 건수 지정 (1~100)
 #' @param do_done logical. 한번의 호출로 모든 조회 결과를 가져오지 못할 경우,
@@ -19,6 +20,8 @@
 #'
 #' @return data.frame
 #' 변수 목록은 다음과 같음.:
+#'
+#' 뉴스일 경우:
 #' \itemize{
 #' \item title : character. 기사의 타이틀
 #' \item originallink : character. 검색 결과 문서의 제공 언론사 하이퍼텍스트 link
@@ -30,19 +33,51 @@
 #' \item description_text : character. 요약한 패시지 정보에서 HTML 태크를 제거한 텍스트
 #' }
 #'
+#' 블로그 포스트일 경우:
+#' \itemize{
+#' \item title : character. 포스트의 타이틀
+#' \item link : character. 검색 결과 포스트 하이퍼텍스트 link
+#' \item description : character. 검색 결과 문서의 내용을 요약한 패시지 정보.
+#' 문서 전체의 내용은 link를 따라가면 읽을 수 있음. 패시지에서 검색어와 일치하는 부분은 태그로 감싸져 있음
+#' \item bloggername : character. 블로거의 이름
+#' \item bloggerlink : character. 블로거의 하이퍼텍스트 link
+#' \item post_date : Date. 블로그 포스트가 작성된 날짜
+#' \item title_text : character. 타이틀에서 HTML 태크를 제거한 텍스트
+#' \item description_text : character. 요약한 패시지 정보에서 HTML 태크를 제거한 텍스트
+#' }
+#'
+#' 카페 게시글일 경우:
+#' \itemize{
+#' \item title : character. 게시글의 타이틀
+#' \item link : character. 검색 결과 문서의 제공 네이버 하이퍼텍스트 link
+#' \item description : character. 검색 결과 문서의 내용을 요약한 패시지 정보.
+#' 문서 전체의 내용은 link를 따라가면 읽을 수 있음. 패시지에서 검색어와 일치하는 부분은 태그로 감싸져 있음
+#' \item cafe_name : character. 카페 이름
+#' \item cafe_url : character. 카페 하이퍼텍스트 link
+#' \item title_text : character. 타이틀에서 HTML 태크를 제거한 텍스트
+#' \item description_text : character. 요약한 패시지 정보에서 HTML 태크를 제거한 텍스트
+#' }
+#'
 #' @examples
 #' \donttest{
 #' # Your authorized API keys
 #' client_id <- "XXXXXXXXXXXXXXXXXXXXXXX"
 #' client_secret <- "XXXXXXXXX"
 #'
+#' # 뉴스 검색
 #' search_list <- search_naver(
 #'   "불평등", client_id = client_id, client_secret = client_secret
 #' )
 #'
+#' # 뉴스 검색
 #' search_list <- search_naver(
 #'   "불평등", client_id = client_id, client_secret = client_secret,
 #'   do_done = TRUE, max_record = 350
+#' )
+#'
+#' # 블로그 포스트 검색
+#' search_list <- search_naver(
+#'   "불평등", "blog",  client_id = client_id, client_secret = client_secret
 #' )
 #'
 #' }
@@ -55,12 +90,16 @@
 #' @importFrom tibble as_tibble
 #' @export
 #'
-search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
+search_naver <- function(query = NULL, type = c("news", "blog", "cafearticle"),
+                         chunk = 100, chunk_no = 1,
                          sort = c("date", "sim"), do_done = FALSE,
                          max_record = 1000L,
                          client_id = Sys.getenv("NAVER_CLIENT_ID"),
                          client_secret = Sys.getenv("NAVER_CLIENT_SECRET"),
                          verbose = TRUE) {
+  type <- match.arg(type)
+  type <- ifelse(type == "cafe", "cafearticle", type)
+
   if (is.null(query)) {
     stop("검색 키워드인 query를 입력하지 않았습니다.")
   }
@@ -76,22 +115,55 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
   sort <- match.arg(sort)
 
   get_list <- function(doc) {
-    doc |>
-      XML::getNodeSet("//item") |>
-      XML::xmlToDataFrame() |>
-      rename("publish_date" = pubDate) |>
-      mutate(publish_date = as.POSIXct(publish_date,
-                                       format = "%a, %d %b %Y %H:%M:%S %z")) |>
-      mutate(title_text = stringr::str_remove_all(
-        title, "&\\w+;|<[[:punct:]]*b>")) |>
-      mutate(title_text = stringr::str_remove_all(
-        title_text, "[[:punct:]]*")) |>
-      mutate(description_text = stringr::str_remove_all(
-        description,
-        "&\\w+;|<[[:punct:]]*b>|[“”]"))
+    if (type == "news") {
+      return(
+        doc |>
+          XML::getNodeSet("//item") |>
+          XML::xmlToDataFrame() |>
+          rename("publish_date" = pubDate) |>
+          mutate(publish_date = as.POSIXct(publish_date,
+                                           format = "%a, %d %b %Y %H:%M:%S %z")) |>
+          mutate(title_text = stringr::str_remove_all(
+            title, "&\\w+;|<[[:punct:]]*b>")) |>
+          mutate(title_text = stringr::str_remove_all(
+            title_text, "[[:punct:]]*")) |>
+          mutate(description_text = stringr::str_remove_all(
+            description,
+            "&\\w+;|<[[:punct:]]*b>|[“”]"))
+      )
+    } else if (type == "blog") {
+      return(
+        doc |>
+          XML::getNodeSet("//item") |>
+          XML::xmlToDataFrame() |>
+          rename("post_date" = postdate) |>
+          mutate(post_date = as.Date(post_date,
+                                     format = "%Y%m%d")) |>
+          mutate(title_text = stringr::str_remove_all(
+            title, "&\\w+;|<[[:punct:]]*b>")) |>
+          mutate(title_text = stringr::str_remove_all(
+            title_text, "[[:punct:]]*")) |>
+          mutate(description_text = stringr::str_remove_all(
+            description,
+            "&\\w+;|<[[:punct:]]*b>|[“”]"))
+      )
+    } else if (type == "cafearticle") {
+      return(
+        doc |>
+          XML::getNodeSet("//item") |>
+          XML::xmlToDataFrame() |>
+          mutate(title_text = stringr::str_remove_all(
+            title, "&\\w+;|<[[:punct:]]*b>")) |>
+          mutate(title_text = stringr::str_remove_all(
+            title_text, "[[:punct:]]*")) |>
+          mutate(description_text = stringr::str_remove_all(
+            description,
+            "&\\w+;|<[[:punct:]]*b>|[“”]"))
+      )
+    }
   }
 
-  searchUrl <- "https://openapi.naver.com/v1/search/news.xml"
+  searchUrl <- glue::glue("https://openapi.naver.com/v1/search/{type}.xml")
 
   query <- query |>
     enc2utf8() |>
@@ -115,7 +187,7 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
     as.integer()
 
   if (verbose) {
-    glue::glue("* 검색된 총 기사 건수는 {total_count}건입니다.\n\n") |>
+    glue::glue("* 검색된 총 {type} 건수는 {total_count}건입니다.\n\n") |>
       cat()
 
     glue::glue("  - ({chunk}/{min(total_count, max_record)})건 호출을 진행합니다.\n\n") |>
@@ -169,6 +241,7 @@ search_naver <- function(query = NULL, chunk = 100, chunk_no = 1,
       tibble::as_tibble()
   }
 }
+
 
 
 #' 네이버 통합 검색어 트렌드 검색

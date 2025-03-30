@@ -2,10 +2,11 @@
 % Please edit documentation in R/search_naver.R
 \name{search_naver}
 \alias{search_naver}
-\title{네이버 뉴스 검색}
+\title{네이버 검색}
 \usage{
 search_naver(
   query = NULL,
+  type = c("news", "blog", "cafearticle"),
   chunk = 100,
   chunk_no = 1,
   sort = c("date", "sim"),
@@ -18,6 +19,8 @@ search_naver(
 }
 \arguments{
 \item{query}{character. 검색을 원하는 문자열}
+
+\item{type}{character. 검색의 종류. "news", "blog", "cafearticle"에서 선택.}
 
 \item{chunk}{integer. 검색 결과 출력 건수 지정 (1~100)}
 
@@ -39,6 +42,8 @@ do_done가 FALSE일 경우에는 적용되지 않습니다.}
 \value{
 data.frame
 변수 목록은 다음과 같음.:
+
+뉴스일 경우:
 \itemize{
 \item title : character. 기사의 타이틀
 \item originallink : character. 검색 결과 문서의 제공 언론사 하이퍼텍스트 link
@@ -49,9 +54,34 @@ data.frame
 \item title_text : character. 타이틀에서 HTML 태크를 제거한 텍스트
 \item description_text : character. 요약한 패시지 정보에서 HTML 태크를 제거한 텍스트
 }
+
+블로그 포스트일 경우:
+\itemize{
+\item title : character. 포스트의 타이틀
+\item link : character. 검색 결과 포스트 하이퍼텍스트 link
+\item description : character. 검색 결과 문서의 내용을 요약한 패시지 정보.
+문서 전체의 내용은 link를 따라가면 읽을 수 있음. 패시지에서 검색어와 일치하는 부분은 태그로 감싸져 있음
+\item bloggername : character. 블로거의 이름
+\item bloggerlink : character. 블로거의 하이퍼텍스트 link
+\item post_date : Date. 블로그 포스트가 작성된 날짜
+\item title_text : character. 타이틀에서 HTML 태크를 제거한 텍스트
+\item description_text : character. 요약한 패시지 정보에서 HTML 태크를 제거한 텍스트
+}
+
+카페 게시글일 경우:
+\itemize{
+\item title : character. 게시글의 타이틀
+\item link : character. 검색 결과 문서의 제공 네이버 하이퍼텍스트 link
+\item description : character. 검색 결과 문서의 내용을 요약한 패시지 정보.
+문서 전체의 내용은 link를 따라가면 읽을 수 있음. 패시지에서 검색어와 일치하는 부분은 태그로 감싸져 있음
+\item cafe_name : character. 카페 이름
+\item cafe_url : character. 카페 하이퍼텍스트 link
+\item title_text : character. 타이틀에서 HTML 태크를 제거한 텍스트
+\item description_text : character. 요약한 패시지 정보에서 HTML 태크를 제거한 텍스트
+}
 }
 \description{
-네이버 뉴스 검색 결과를 출력해주는 REST API를 호출하여, 뉴스 정보를 검색합니다.
+네이버 뉴스/블로그/카페 게시글 검색 결과를 출력해주는 REST API를 호출하여, 뉴스/블로그/카페 게시글 정보를 검색합니다.
 }
 \details{
 네이버에서 발급받은 Client ID, Client Secret는 개인이 발급받은 키를 사용하며,
@@ -63,13 +93,20 @@ data.frame
 client_id <- "XXXXXXXXXXXXXXXXXXXXXXX"
 client_secret <- "XXXXXXXXX"
 
+# 뉴스 검색
 search_list <- search_naver(
   "불평등", client_id = client_id, client_secret = client_secret
 )
 
+# 뉴스 검색
 search_list <- search_naver(
   "불평등", client_id = client_id, client_secret = client_secret,
   do_done = TRUE, max_record = 350
+)
+
+# 블로그 포스트 검색
+search_list <- search_naver(
+  "불평등", "blog",  client_id = client_id, client_secret = client_secret
 )
 
 }
