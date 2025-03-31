@@ -186,6 +186,13 @@ search_naver <- function(query = NULL, type = c("news", "blog", "cafearticle"),
     XML::xmlValue() |>
     as.integer()
 
+  if (total_count == 0) {
+    glue::glue("* 해당 검색어로 검색된 뉴스는 없습니다.\n\n") |>
+      cat()
+
+    return(NULL)
+  }
+
   if (verbose) {
     glue::glue("* 검색된 총 {type} 건수는 {total_count}건입니다.\n\n") |>
       cat()
