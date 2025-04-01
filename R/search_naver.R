@@ -218,7 +218,7 @@ search_naver <- function(query = NULL, type = c("news", "blog", "cafearticle"),
 
     idx <- (seq(cnt) + 1)
 
-    add_list <- idx[idx <= 1000] |>
+    add_list <- idx[idx <= max_record] |>
       purrr::map_df({
         function(x) {
           if (verbose) {
@@ -227,7 +227,7 @@ search_naver <- function(query = NULL, type = c("news", "blog", "cafearticle"),
           }
 
           glue::glue(
-            "{searchUrl}?query={query}&display={chunk}&start={(x - 1) * chunk + chunk_no}&sort={sort}"
+            "{searchUrl}?query={query}&display={chunk}&start={min((x - 1) * chunk + chunk_no, 1000L)}&sort={sort}"
           ) |>
             httr::GET(
               httr::add_headers(
