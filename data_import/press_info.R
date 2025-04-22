@@ -146,7 +146,29 @@ json_data <- '[
   {"domain": "news.einfomax", "mass_media": "연합인포맥스"},
   {"domain": "wolyo", "mass_media": "월요신문"},
   {"domain": "dailysmart", "mass_media": "스마트경제"},
-  {"domain": "kukinews", "mass_media": "쿠키뉴스"}
+  {"domain": "kukinews", "mass_media": "쿠키뉴스"},
+  {"domain": "viva100", "mass_media": "브릿지경제"},
+  {"domain": "apnews", "mass_media": "AP신문"},
+  {"domain": "naeil", "mass_media": "내일신문"},
+  {"domain": "ngetnews", "mass_media": "뉴스저널리즘"},
+  {"domain": "sisacast", "mass_media": "시사캐스트"},
+  {"domain": "fieldnews", "mass_media": "필드뉴스"},
+  {"domain": "news.dealsitetv", "mass_media": "DealSite경제TV"},
+  {"domain": "startuptoday", "mass_media": "스타트업투데이"},
+  {"domain": "industrynews", "mass_media": "인더스트리뉴스"},
+  {"domain": "ezyeconomy", "mass_media": "이지경제"},
+  {"domain": "pressman", "mass_media": "프레스맨"},
+  {"domain": "beyondpost", "mass_media": "비욘드포스트"},
+  {"domain": "wikileaks.org", "mass_media": "위키리크스"},
+  {"domain": "weekly.cnbnews", "mass_media": "CNB뉴스"},
+  {"domain": "iminju", "mass_media": "민주신문"},
+  {"domain": "kpenews", "mass_media": "한국정경신문"},
+  {"domain": "biz.sbs", "mass_media": "SBS Biz"},
+  {"domain": "insightkorea", "mass_media": "인사이트코리아"},
+  {"domain": "ziksir", "mass_media": "직썰"},
+  {"domain": "raonnews", "mass_media": "라온신문"},
+  {"domain": "opinionnews", "mass_media": "오피니언뉴스"},
+  {"domain": "datanews", "mass_media": "데이터뉴스"}
 ]'
 
 # JSON을 R 데이터프레임으로 변환

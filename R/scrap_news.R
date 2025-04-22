@@ -11,9 +11,9 @@
 #' @examples
 #' \donttest{
 #'
-#' scrap_news("https://n.news.naver.com/mnews/article/366/0001062385?sid=101")
+#' scrap_news("https://n.news.naver.com/mnews/article/366/0001062385?sid=101", type = "content")
 #'
-#' scrap_news("https://www.finomy.com/news/articleView.html?idxno=224464")
+#' scrap_news("https://www.finomy.com/news/articleView.html?idxno=224464", type = "content")
 #'
 #' }
 #'
@@ -21,7 +21,7 @@
 #' @importFrom stringr str_detect
 #' @export
 #'
-scrap_news <- function(url = NULL, file_name = NULL,
+scrap_news <- function(url = NULL, file_name = NULL, type = c("all", "content"),
                        verbose = FALSE) {
   if (is.null(url)) {
     stop("뉴스 게시 주소 url을 입력하지 않았습니다.")
@@ -29,14 +29,18 @@ scrap_news <- function(url = NULL, file_name = NULL,
 
   is_naver <- stringr::str_detect(url, "n.news.naver.com")
 
+  # 웹페이지 HTML 읽기
+  webpage <- read_html(url)
+
   if (is_naver) {
     target_tag <- "article"
+
+    if (type == "all") {
+      target_tag <- "div.media_end_summary"
+    }
   } else {
     target_tag <- "p"
   }
-
-  # 웹페이지 HTML 읽기
-  webpage <- read_html(url)
 
   # 특정 태그 선택 (예: <p> 태그의 내용 가져오기)
   content <- webpage |>
