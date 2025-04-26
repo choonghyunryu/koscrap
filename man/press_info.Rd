@@ -5,7 +5,7 @@
 \alias{press_info}
 \title{미디어 매체와 도메인 매핑 정보}
 \format{
-144 관측치와 2 변수를 갖는 data.frame. 다음과 같은 변수를 포함합니다.:
+166 관측치와 2 변수를 갖는 data.frame. 다음과 같은 변수를 포함합니다.:
 \describe{
 \item{domain}{charcter. 도메인 키워드.}
 \item{mass_media}{charcter. 미디어 매체 이름.}

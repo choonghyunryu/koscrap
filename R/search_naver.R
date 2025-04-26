@@ -421,5 +421,45 @@ get_naver_trend <- function(keywords = NULL, titles = NULL,
 }
 
 
+#' 네이버 뉴스 pdf 파일 출력
+#'
+#' @description 네이버 통합 뉴스의 기사를 프린트 미리보기 형식으로 pdf 파일로 출력하기
+#'
+#' @details 네이버 뉴스에 게시된 뉴스에 한정해서 출력함. 사용 환경에 chrome이 설치되어 있어야 동작함.
+#'
+#' @param url character. 네이버 뉴스의 URL.
+#' @param file_name character. 뉴스 기사를 출력할 pdf 파일 이름. 기본값은 "naver_news.pdf".
+#' @param path character. 뉴스 기사를 파일로 출력할 경로 이름. 기본값은 현재 작업 경로인 ".".
+#'
+#' @examples
+#' \donttest{
+#' url <- "https://n.news.naver.com/mnews/article/018/0005981321?sid=101"
+#' news2pdf(url)
+#' }
+#'
+#' @importFrom httr GET content
+#' @importFrom rvest read_html html_attr html_attr
+#' @importFrom glue glue
+#' @importFrom pagedown chrome_print
+#' @export
+#'
+news2pdf <- function(url = NULL, file_name = "naver_news.pdf", path = ".") {
+  webpage <- url |>
+    httr::GET() |>
+    httr::content("text") |>
+    rvest::read_html()
+
+  # 인쇄하기 URL
+  pr_url <- webpage |>
+    rvest::html_nodes(".media_end_print_link") |>
+    rvest::html_attr("data-print-url")
+
+  # pdf 출력하기
+  pagedown::chrome_print(input = glue::glue("https://n.news.naver.com{pr_url}"),
+                         output = glue::glue("{path}/{file_name}"),
+                         options = list(landscape = FALSE))
+}
+
+
 
 

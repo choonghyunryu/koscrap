@@ -4,7 +4,12 @@
 \alias{scrap_news}
 \title{뉴스 내용을 스크래핑}
 \usage{
-scrap_news(url = NULL, file_name = NULL, verbose = FALSE)
+scrap_news(
+  url = NULL,
+  file_name = NULL,
+  type = c("all", "content"),
+  verbose = FALSE
+)
 }
 \arguments{
 \item{url}{character. 뉴스 스크래핑 대상 URL.}
@@ -22,9 +27,9 @@ character.
 \examples{
 \donttest{
 
-scrap_news("https://n.news.naver.com/mnews/article/366/0001062385?sid=101")
+scrap_news("https://n.news.naver.com/mnews/article/366/0001062385?sid=101", type = "content")
 
-scrap_news("https://www.finomy.com/news/articleView.html?idxno=224464")
+scrap_news("https://www.finomy.com/news/articleView.html?idxno=224464", type = "content")
 
 }
 

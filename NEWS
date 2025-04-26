@@ -1,3 +1,14 @@
+CHANGES IN R VERSION 0.7.0:
+  NEW FEATURES:
+    * 미디어 매체와 도메인 매핑 데이터 추가. (#9)
+        - press_info
+
+  MAJOR CHANGES:
+    * 네이버 뉴스 pdf 파일 출력 news2pdf() 추가. (#8)
+        - 네이버 뉴스의 프린터 출력 페이지 pdf export
+
+
+
 CHANGES IN R VERSION 0.6.0:
   NEW FEATURES:
     * 미디어 매체와 도메인 매핑 데이터 추가. (#9)
