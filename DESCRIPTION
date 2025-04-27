@@ -1,8 +1,8 @@
 Package: koscrap
 Type: Package 
 Title: Scrap from Public Data Portal & Naver 
-Version: 0.7.1
-Date: 2025-04-27
+Version: 0.8.0
+Date: 2025-04-28
 Authors@R: c(
   person("Choonghyun", "Ryu",, "choonghyun.ryu@gmail.com", role = c("aut", "cre"))
   )
@@ -20,6 +20,7 @@ Imports:
     rvest,
     shiny,
     stringr,
+    tibble,
     tidytext,
     wordcloud2,
     XML

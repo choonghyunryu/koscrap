@@ -452,14 +452,133 @@ news2pdf <- function(url = NULL, file_name = "naver_news.pdf", path = ".") {
   # 인쇄하기 URL
   pr_url <- webpage |>
     rvest::html_nodes(".media_end_print_link") |>
-    rvest::html_attr("data-print-url")
+    rvest::html_attr("data-print-url") |>
+    (\(x) stringr::str_c("https://n.news.naver.com", x))()
 
   # pdf 출력하기
-  pagedown::chrome_print(input = glue::glue("https://n.news.naver.com{pr_url}"),
+  pagedown::chrome_print(input = pr_url,
                          output = glue::glue("{path}/{file_name}"),
                          options = list(landscape = FALSE))
 }
 
 
+
+#' 네이버 뉴스 기사 추출
+#'
+#' @description 네이버 통합 뉴스의 기사의 여러 정보를 추출
+#'
+#' @details 네이버 뉴스에 게시된 뉴스에 한정해서 뉴스 관련 정보를 추출함.
+#'
+#' @param url character. 네이버 뉴스의 URL.
+#' @return tibble.
+#' 변수 목록은 다음과 같음.:
+#' \itemize{
+#' \item url : character. 네이버 뉴스의 URL
+#' \item title : character. 기사의 타이틀
+#' \item category : character. 기사의 카테고리
+#' \item media_name : character. 기사의 미디어 매체 이름
+#' \item journalist_name : character. 기자의 이름
+#' \item journalist_email : character. 기자의 이메일 주소
+#' \item publish_date : 기사가 작성된 일시
+#' \item update_date : 기사가 수정된 일시
+#' \item article : character. 기사의 본문
+#' }
+#'
+#' @examples
+#' \donttest{
+#' url <- "https://n.news.naver.com/mnews/article/018/0005981321?sid=101"
+#' newscontents(url)
+#' }
+#'
+#' @importFrom httr GET content
+#' @importFrom rvest read_html html_attr html_attr
+#' @importFrom tibble tibble
+#' @export
+#'
+newscontents <- function(url = NULL) {
+  webpage <- url |>
+    httr::GET() |>
+    httr::content("text") |>
+    rvest::read_html()
+
+  # title text in Naver news
+  title <- webpage |>
+    rvest::html_element(css = "#title_area") |>
+    rvest::html_text()
+
+  # category in Naver news
+  webpage |>
+    rvest::html_nodes("span.Nitem_link_menu")
+
+  idx <- webpage |>
+    rvest::html_nodes("a.Nitem_link") |>
+    rvest::html_attr("aria-selected") |>
+    stringr::str_detect("true") |>
+    which()
+
+  category <- webpage |>
+    rvest::html_nodes("span.Nitem_link_menu") |>
+    rvest::html_text() |>
+    purrr::pluck(idx)
+
+  # journalist email in Naver news
+  journalist <- webpage |>
+    rvest::html_nodes("span.byline_s") |>
+    rvest::html_text() |>
+    stringr::str_remove_all("^[[:print:]]+[[:space:]]")
+
+  journalist_name <- journalist |>
+    extract_before_bracket()
+
+  journalist_email <- journalist |>
+    extract_between_brackets()
+
+  # media name in Naver news
+  media_name <- webpage |>
+    rvest::html_nodes("span.media_end_head_top_logo_text.light_type") |>
+    rvest::html_text()
+
+  # 입력일자 in Naver news
+  publist_date <- webpage |>
+    rvest::html_nodes("span.media_end_head_info_datestamp_time._ARTICLE_DATE_TIME") |>
+    rvest::html_attr("data-date-time")
+
+  # 수정일자 in Naver news
+  update_date <- webpage |>
+    rvest::html_nodes("span.media_end_head_info_datestamp_time._ARTICLE_MODIFY_DATE_TIME") |>
+    rvest::html_attr("data-modify-date-time")
+
+  # 인쇄하기 페이지 URL
+  pr_url <- webpage |>
+    rvest::html_nodes(".media_end_print_link") |>
+    rvest::html_attr("data-print-url") |>
+    (\(x) stringr::str_c("https://n.news.naver.com", x))()
+
+  # 인쇄하기 페이지
+  prpage <- pr_url |>
+    httr::GET() |>
+    httr::content("text") |>
+    rvest::read_html()
+
+  # 본문
+  article <- prpage |>
+    rvest::html_nodes("div.print_container") |>
+    rvest::html_text() |>
+    extract_between_bracket_and_newline()
+
+  contents <- tibble::tibble(
+    url = url,
+    title = title,
+    category = category,
+    media_name = media_name,
+    journalist_name = journalist_name,
+    journalist_email = journalist_email,
+    publist_date = publist_date,
+    update_date = ifelse(length(update_date) == 0, NA, update_date),
+    article = article
+  )
+
+  contents
+}
 
 
