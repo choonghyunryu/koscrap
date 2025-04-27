@@ -1,17 +1,27 @@
+CHANGES IN R VERSION 0.7.1:
+  NEW FEATURES:
+    * 괄호 관련된 문자열을 추출하는 함수 정의 (#12)
+        - extract_between_brackets()
+        - extract_before_bracket()
+    * 뉴스 기사 추출을 위한 문자열 조작 함수 추가 (#13)
+        - extract_between_bracket_and_newline()
+
+
+
 CHANGES IN R VERSION 0.7.0:
   NEW FEATURES:
-    * 미디어 매체와 도메인 매핑 데이터 추가. (#9)
-        - press_info
-
-  MAJOR CHANGES:
     * 네이버 뉴스 pdf 파일 출력 news2pdf() 추가. (#8)
         - 네이버 뉴스의 프린터 출력 페이지 pdf export
+
+  MINOR CHANGES:
+    * 미디어 매체와 도메인 매핑 데이터 추가. (#9)
+        - press_info
 
 
 
 CHANGES IN R VERSION 0.6.0:
   NEW FEATURES:
-    * 미디어 매체와 도메인 매핑 데이터 추가. (#9)
+    * 미디어 매체와 도메인 매핑 데이터 정의. (#9)
         - press_info
 
   MAJOR CHANGES:
