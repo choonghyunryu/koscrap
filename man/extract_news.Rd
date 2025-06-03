@@ -8,6 +8,7 @@ extract_news(
   url,
   photo = TRUE,
   remove_selectors = NULL,
+  n_chars = 150,
   file_name = "short_page.html"
 )
 }
@@ -17,6 +18,8 @@ extract_news(
 \item{photo}{logical. 이미지 포함 여부.}
 
 \item{remove_selectors}{character. html에서 제거할 요소의 사용자 정의.}
+
+\item{n_chars}{integer. 본문에서 추출할 글자 수.}
 
 \item{file_name}{character. 출력할 html 파일 이름}
 }
