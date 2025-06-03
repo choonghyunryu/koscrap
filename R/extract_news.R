@@ -18,7 +18,7 @@
 #' }
 #'
 #' @importFrom rvest read_html html_nodes
-#' @importFrom xml2 xml_remove xml_find_all xml_text xml_set_attr
+#' @importFrom xml2 xml_remove xml_find_all xml_text xml_add_child xml_root
 #' @importFrom purrr walk
 #' @importFrom stringr str_length str_sub
 #' @export
@@ -98,8 +98,8 @@ extract_news <- function(url, photo = TRUE, remove_selectors = NULL, n_chars = 1
 
   # 원문 링크 추가
   node <- xml2::xml_find_first(page, "//*[@id='dic_area']")
-  paragraph <- read_html(link_url)
-  xml_add_child(node, xml_root(paragraph))
+  paragraph <- rvest::read_html(link_url)
+  xml2::xml_add_child(node, xml2::xml_root(paragraph))
 
   clean_html <- as.character(page)
   writeLines(clean_html, file_name)
