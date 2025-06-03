@@ -23,6 +23,7 @@ Imports:
     tibble,
     tidytext,
     wordcloud2,
+    xml2,
     XML
 Author: Choonghyun Ryu [aut, cre]
 Maintainer: Choonghyun Ryu <choonghyun.ryu@gmail.com>

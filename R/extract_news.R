@@ -28,11 +28,11 @@ extract_news <- function(url, photo = TRUE, remove_selectors = NULL,
   # 기본적으로 제거할 요소들
   default_removes <- c(
     ".byline",     # 기자
-    ".copyright",  # 광고 클래스
+    ".copyright"   # 광고 클래스
   )
 
   if (!photo) {
-    default_removes <- c(default_removes, ".end_photo_org")  # 사진 제거
+    default_removes <- c(default_removes, c(".end_photo_org", ".nbd_table"))  # 사진 제거
   }
 
   # 사용자 지정 선택자와 기본 선택자 결합

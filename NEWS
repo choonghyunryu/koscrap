@@ -2,6 +2,8 @@ CHANGES IN R VERSION 0.9.0:
   NEW FEATURES:
     * 저작권을 고려한 네이버 뉴스 추출 기능 추가 (#14)
         - extract_news()
+    * 문자열에서 지정한 문장의 개수 추출함수 추가 (#15)
+        - extract_sentences_by_count()
 
 
 

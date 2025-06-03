@@ -108,4 +108,38 @@ extract_between_bracket_and_newline <- function(text) {
 }
 
 
+#' 문자열에서 지정 개수의 문장 추출
+#'
+#' @description 문자열에서 지정한 문장의 개수에 해당하는 문자열을 앞부분부터 추출하는 함수
+#'
+#' @details 네이버 뉴스의 본문에서 앞 몇 문장을 추출하기 위해서 지정한 개수의 문장을 추출하는 함수 정의함. 서두의 기자명은 제거함.
+#'
+#' @param text character. 문자열을 추출할 텍스트.
+#'
+#' @examples
+#' \donttest{
+#' # 사용 예시
+#' example_text <- "무궁화 꽃이 피었습니다. 활짝 피었습니다. 삼천리 금수강산에 피었습니다.\n"
+#' extract_sentences_by_count(example_text)
+#' }
+#' @importFrom stringr str_split str_remove
+#' @export
+#'
+extract_sentences_by_count <- function(text, n_sentences = 2) {
+  # 문장 분리 (한국어 기준)
+  sentences <- stringr::str_split(text, "[.!?]\\s*")[[1]]
+  sentences <- sentences[nzchar(sentences)]  # 빈 문자열 제거
+
+  # 지정된 개수만큼 문장 추출
+  if (length(sentences) >= n_sentences) {
+    text <- paste(sentences[1:n_sentences], collapse = ". ")
+  } else {
+    text <- paste(sentences, collapse = ". ")
+  }
+
+  text |>
+    stringr::str_remove("\\[[:print:]+\\]") |>
+    stringr::str_remove(" $") |>
+    paste(".", collapse = "", sep = "")
+}
 
