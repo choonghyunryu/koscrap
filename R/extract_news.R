@@ -82,7 +82,7 @@ extract_news <- function(url, photo = TRUE, remove_selectors = NULL, n_chars = 1
 
   link_url <- stringr::str_c("<br><p>- 원문을 보려면 <a href='",
                               ref_url,
-                              "' target='_blank'>[기사 전문 링크]</a>를 클릭하세요.</p><br>")
+                              "' target='_blank'>[<font color='blue'>기사 전문 링크</font>]</a>를 클릭하세요.</p><br>")
 
   purrr::walk(seq_len(n_nodes), function(i) {
     xml2::xml_text(node[i]) <- ifelse(i > 1, "", first_doc)
