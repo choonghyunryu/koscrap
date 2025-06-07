@@ -8,7 +8,8 @@
 #' @param photo logical. 이미지 포함 여부.
 #' @param remove_selectors character. html에서 제거할 요소의 사용자 정의.
 #' @param n_chars integer. 본문에서 추출할 글자 수.
-#' @param file_name character. 출력할 html 파일 이름
+#' @param file_name character. 뉴스 기사를 출력할 html 파일 이름. 기본값은 "minimal_page.html".
+#' @param path character. 뉴스 기사를 파일로 출력할 경로 이름. 기본값은 현재 작업 경로인 ".".
 #'
 #' @examples
 #' \donttest{
@@ -24,7 +25,7 @@
 #' @export
 #'
 extract_news <- function(url, photo = TRUE, remove_selectors = NULL, n_chars = 150,
-                         file_name = "short_page.html") {
+                         file_name = "minimal_page.html", path = ".") {
   # 웹페이지 읽기
   page <- rvest::read_html(url)
 
@@ -103,6 +104,42 @@ extract_news <- function(url, photo = TRUE, remove_selectors = NULL, n_chars = 1
 
   clean_html <- as.character(page)
   writeLines(clean_html, file_name)
+}
+
+
+#' 네이버 뉴스 미니멀 pdf 파일 출력
+#'
+#' @description 네이버 통합 뉴스의 기사를 프린트 미리보기 미니멀 형식으로 pdf 파일로 출력하기
+#'
+#' @details 네이버 뉴스에 게시된 뉴스에 한정해서 출력함. 사용 환경에 chrome이 설치되어 있어야 동작함.
+#'
+#' @param url character. 네이버 뉴스의 URL.
+#' @param file_name character. 뉴스 기사를 출력할 pdf 파일 이름. 기본값은 "minimal_page.pdf".
+#' @param path character. 뉴스 기사를 파일로 출력할 경로 이름. 기본값은 현재 작업 경로인 ".".
+#'
+#' @examples
+#' \donttest{
+#' url <- "https://n.news.naver.com/mnews/article/018/0005981321?sid=101"
+#' news2pdf_minimal(url)
+#' }
+#'
+#' @importFrom glue glue
+#' @importFrom pagedown chrome_print
+#' @export
+#'
+news2pdf_minimal <- function(url = NULL, photo = TRUE, remove_selectors = NULL,
+                             n_chars = 150, file_name = "minimal_page.pdf", path = ".") {
+  extract_news(url, photo = photo, remove_selectors = remove_selectors,
+               n_chars = n_chars, file_name = "temp.html", path = path)
+
+  pr_url <- ifelse(path %in% c(".", "./"),
+                   glue::glue("file://{getwd()}/temp.html"),
+                   glue::glue("file://{path}/temp.html"))
+
+  # pdf 출력하기
+  pagedown::chrome_print(input = pr_url,
+                         output = glue::glue("{path}/{file_name}"),
+                         options = list(landscape = FALSE))
 }
 
 

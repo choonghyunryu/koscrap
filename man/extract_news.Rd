@@ -9,7 +9,8 @@ extract_news(
   photo = TRUE,
   remove_selectors = NULL,
   n_chars = 150,
-  file_name = "short_page.html"
+  file_name = "minimal_page.html",
+  path = "."
 )
 }
 \arguments{
@@ -21,7 +22,9 @@ extract_news(
 
 \item{n_chars}{integer. 본문에서 추출할 글자 수.}
 
-\item{file_name}{character. 출력할 html 파일 이름}
+\item{file_name}{character. 뉴스 기사를 출력할 html 파일 이름. 기본값은 "minimal_page.html".}
+
+\item{path}{character. 뉴스 기사를 파일로 출력할 경로 이름. 기본값은 현재 작업 경로인 ".".}
 }
 \description{
 저작권을 고려해서 네이버 프린트 페이지의 약식 html을 추출합니다.
