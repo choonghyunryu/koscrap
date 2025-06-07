@@ -470,6 +470,7 @@ news2pdf <- function(url = NULL, file_name = "naver_news.pdf", path = ".") {
 #' @details 네이버 뉴스에 게시된 뉴스에 한정해서 뉴스 관련 정보를 추출함.
 #'
 #' @param url character. 네이버 뉴스의 URL.
+#' @param n_chars integer. 본문에서 추출할 글자 수.
 #' @return tibble.
 #' 변수 목록은 다음과 같음.:
 #' \itemize{
@@ -482,6 +483,7 @@ news2pdf <- function(url = NULL, file_name = "naver_news.pdf", path = ".") {
 #' \item publish_date : 기사가 작성된 일시
 #' \item update_date : 기사가 수정된 일시
 #' \item article : character. 기사의 본문
+#' \item partial_article : character. 기사의 본문의 앞 몇 문장 일부
 #' }
 #'
 #' @examples
@@ -492,10 +494,11 @@ news2pdf <- function(url = NULL, file_name = "naver_news.pdf", path = ".") {
 #'
 #' @importFrom httr GET content
 #' @importFrom rvest read_html html_attr html_attr
+#' @importFrom stringr str_length str_remove str_c str_sub
 #' @importFrom tibble tibble
 #' @export
 #'
-newscontents <- function(url = NULL) {
+newscontents <- function(url = NULL, n_chars = 150L) {
   webpage <- url |>
     httr::GET() |>
     httr::content("text") |>
@@ -560,11 +563,21 @@ newscontents <- function(url = NULL) {
     httr::content("text") |>
     rvest::read_html()
 
-  # 본문
-  article <- prpage |>
-    rvest::html_nodes("div.print_container") |>
-    rvest::html_text() |>
-    extract_between_bracket_and_newline()
+  # 본문 with 본문 텍스트 노드 추출
+  node <- xml2::xml_find_all(prpage, "//*[@id='dic_area']/text()")
+  article <- xml2::xml_text(node) |>
+    paste(collapse = " ") |>
+    stringr::str_remove("\\[[:print:]+\\]") |>
+    stringr::str_remove("^ ")
+
+  # 본문에서 몇개 문장 추출
+  first_doc <- article |>
+    extract_sentences_by_count()
+  len_first <- stringr::str_length(first_doc)
+
+  if (len_first > n_chars) {
+    first_doc <- stringr::str_c(stringr::str_sub(first_doc, end = n_chars), "...")
+  }
 
   contents <- tibble::tibble(
     url = url,
@@ -575,7 +588,8 @@ newscontents <- function(url = NULL) {
     journalist_email = journalist_email,
     publist_date = publist_date,
     update_date = ifelse(length(update_date) == 0, NA, update_date),
-    article = article
+    article = article,
+    partial_article = first_doc
   )
 
   contents

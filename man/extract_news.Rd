@@ -8,7 +8,7 @@ extract_news(
   url,
   photo = TRUE,
   remove_selectors = NULL,
-  n_chars = 150,
+  n_chars = 150L,
   file_name = "minimal_page.html",
   path = "."
 )

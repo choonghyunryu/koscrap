@@ -4,10 +4,12 @@
 \alias{newscontents}
 \title{네이버 뉴스 기사 추출}
 \usage{
-newscontents(url = NULL)
+newscontents(url = NULL, n_chars = 150L)
 }
 \arguments{
 \item{url}{character. 네이버 뉴스의 URL.}
+
+\item{n_chars}{integer. 본문에서 추출할 글자 수.}
 }
 \value{
 tibble.
@@ -22,6 +24,7 @@ tibble.
 \item publish_date : 기사가 작성된 일시
 \item update_date : 기사가 수정된 일시
 \item article : character. 기사의 본문
+\item partial_article : character. 기사의 본문의 앞 몇 문장 일부
 }
 }
 \description{

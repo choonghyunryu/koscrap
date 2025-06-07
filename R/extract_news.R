@@ -24,7 +24,7 @@
 #' @importFrom stringr str_length str_sub
 #' @export
 #'
-extract_news <- function(url, photo = TRUE, remove_selectors = NULL, n_chars = 150,
+extract_news <- function(url, photo = TRUE, remove_selectors = NULL, n_chars = 150L,
                          file_name = "minimal_page.html", path = ".") {
   # 웹페이지 읽기
   page <- rvest::read_html(url)
@@ -105,7 +105,6 @@ extract_news <- function(url, photo = TRUE, remove_selectors = NULL, n_chars = 1
   clean_html <- as.character(page)
   writeLines(clean_html, file_name)
 }
-
 
 #' 네이버 뉴스 미니멀 pdf 파일 출력
 #'
