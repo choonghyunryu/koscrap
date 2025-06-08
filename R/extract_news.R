@@ -81,9 +81,19 @@ extract_news <- function(url, photo = TRUE, remove_selectors = NULL, n_chars = 1
   node <- xml2::xml_find_all(page, "//*[@id='dic_area']/text()")
   n_nodes <- length(node)
 
-  first_doc <- paste(xml2::xml_text(node[1]),
-                     xml2::xml_text(node[2]), sep = " ") |>
-    extract_sentences_by_count()
+  if (n_nodes >= 2) {
+    first_doc <- paste(xml2::xml_text(node[1]),
+                       xml2::xml_text(node[2]), sep = " ") |>
+      extract_sentences_by_count()
+  } else {
+    if (n_nodes == 0) {
+      node <- xml2::xml_find_all(page, "//*[@id='dic_area']/div")
+      n_nodes <- length(node)
+    }
+
+    first_doc <- xml2::xml_text(node[1]) |>
+      extract_sentences_by_count()
+  }
 
   len_first <- stringr::str_length(first_doc)
 
@@ -106,6 +116,11 @@ extract_news <- function(url, photo = TRUE, remove_selectors = NULL, n_chars = 1
       xml2::xml_remove(node_br[i])
     }
   })
+
+  if (length(n_nodes) == 1) {
+    nodes_to_remove <- try(rvest::html_nodes(page, "#dic_area > div"), silent = TRUE)
+    xml2::xml_remove(nodes_to_remove)
+  }
 
   # 원문 링크 추가
   node <- xml2::xml_find_first(page, "//*[@id='dic_area']")
