@@ -25,6 +25,8 @@ tibble.
 \item update_date : 기사가 수정된 일시
 \item article : character. 기사의 본문
 \item partial_article : character. 기사의 본문의 앞 몇 문장 일부
+\item img_url : character. 본문 이미지의 URL. 첫번째 이미지 URL을 추출함.
+\item img_alt : character. 본문 이미지의 대체 텍스트. 첫번째 이미지의 대체 텍스트를 추출함.
 }
 }
 \description{

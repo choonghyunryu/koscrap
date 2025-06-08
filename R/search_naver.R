@@ -484,6 +484,8 @@ news2pdf <- function(url = NULL, file_name = "naver_news.pdf", path = ".") {
 #' \item update_date : 기사가 수정된 일시
 #' \item article : character. 기사의 본문
 #' \item partial_article : character. 기사의 본문의 앞 몇 문장 일부
+#' \item img_url : character. 본문 이미지의 URL. 첫번째 이미지 URL을 추출함.
+#' \item img_alt : character. 본문 이미지의 대체 텍스트. 첫번째 이미지의 대체 텍스트를 추출함.
 #' }
 #'
 #' @examples
@@ -579,6 +581,25 @@ newscontents <- function(url = NULL, n_chars = 150L) {
     first_doc <- stringr::str_c(stringr::str_sub(first_doc, end = n_chars), "...")
   }
 
+  # 본문에서 이미지 추출
+  images <- prpage |>
+    xml2::xml_find_all("//*[@class='_LAZY_LOADING _LAZY_LOADING_INIT_HIDE']") |>
+    xml2::xml_attrs("src")
+
+  # 본문에서 이미지 URL 추출
+  img_url <- images |>
+    purrr::map_chr(function(x) {
+      x["data-src"]
+    }) |>
+    stringr::str_subset("https://imgnews.pstatic.net")
+
+  # 본문에서 이미지 대체 텍스트 추출
+  img_alt <- images |>
+    purrr::map_chr(function(x) {
+      x["alt"]
+    }) |>
+    stringr::str_subset("^[[:print:]]+")
+
   contents <- tibble::tibble(
     url = url,
     title = title,
@@ -589,7 +610,9 @@ newscontents <- function(url = NULL, n_chars = 150L) {
     publist_date = publist_date,
     update_date = ifelse(length(update_date) == 0, NA, update_date),
     article = article,
-    partial_article = first_doc
+    partial_article = first_doc,
+    img_url = img_url[1],
+    img_alt = img_alt[1]
   )
 
   contents
