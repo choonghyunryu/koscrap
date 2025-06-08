@@ -21,11 +21,21 @@
 #' @importFrom rvest read_html html_nodes
 #' @importFrom xml2 xml_remove xml_find_all xml_text xml_add_child xml_root
 #' @importFrom purrr walk
-#' @importFrom stringr str_length str_sub
+#' @importFrom stringr str_length str_sub str_replace
 #' @export
 #'
 extract_news <- function(url, photo = TRUE, remove_selectors = NULL, n_chars = 150L,
                          file_name = "minimal_page.html", path = ".") {
+  # URL이 유효한지 확인
+  if (!grepl("^https?://n.news.naver.com", url)) {
+    stop("유효한 Naver URL을 입력하세요.")
+  }
+
+  if (!grepl("print", url)) {
+    url <- stringr::str_replace(url, "article", "article/print")
+  }
+
+
   # 웹페이지 읽기
   page <- rvest::read_html(url)
 
@@ -139,6 +149,11 @@ news2pdf_minimal <- function(url = NULL, photo = TRUE, remove_selectors = NULL,
   pagedown::chrome_print(input = pr_url,
                          output = glue::glue("{path}/{file_name}"),
                          options = list(landscape = FALSE))
+
+  # 임시 파일 삭제
+  if (file.exists("temp.html")) {
+    file.remove("temp.html")
+  }
 }
 
 
